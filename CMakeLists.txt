@@ -10,7 +10,7 @@ set(EXTENSION_CONTRIBUTORS "Andras Lasso (PerkLab)")
 set(EXTENSION_DESCRIPTION "Compute intensity profile along a line")
 set(EXTENSION_ICONURL "http://www.example.com/Slicer/Extensions/LineProfile.png")
 set(EXTENSION_SCREENSHOTURLS "http://www.example.com/Slicer/Extensions/LineProfile/Screenshots/1.png")
-set(EXTENSION_DEPENDS "NA") # Specified as a space separated string, a list or 'NA' if any
+set(EXTENSION_DEPENDS "SegmentEditorExtraEffects") # Specified as a space separated string, a list or 'NA' if any
 
 #-----------------------------------------------------------------------------
 # Extension dependencies
