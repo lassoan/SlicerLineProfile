@@ -287,7 +287,7 @@ class LineProfileLogic(ScriptedLoadableModuleLogic):
     distanceArray = self.getArrayFromTable(outputTable, DISTANCE_ARRAY_NAME)
     intensityArray = self.getArrayFromTable(outputTable, INTENSITY_ARRAY_NAME)
     outputTable.GetTable().SetNumberOfRows(probedPoints.GetNumberOfPoints())
-    x = xrange(0, probedPoints.GetNumberOfPoints())
+    x = range(0, probedPoints.GetNumberOfPoints())
     xStep = rulerLengthMm/(probedPoints.GetNumberOfPoints()-1)
     probedPointScalars = probedPoints.GetPointData().GetScalars()
     for i in range(len(x)):
