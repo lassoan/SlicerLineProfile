@@ -293,6 +293,9 @@ class LineProfileLogic(ScriptedLoadableModuleLogic):
     for i in range(len(x)):
       distanceArray.SetValue(i, x[i]*xStep)
       intensityArray.SetValue(i, probedPointScalars.GetTuple(i)[0])
+    distanceArray.Modified()
+    intensityArray.Modified()
+    outputTable.GetTable().Modified()
 
   def updatePlot(self, outputPlotSeries, outputTable, name=None):
 
