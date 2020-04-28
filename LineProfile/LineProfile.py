@@ -71,7 +71,7 @@ class LineProfileWidget(ScriptedLoadableModuleWidget):
     # input ruler selector
     #
     self.inputRulerSelector = slicer.qMRMLNodeComboBox()
-    self.inputRulerSelector.nodeTypes = ["vtkMRMLAnnotationRulerNode"]
+    self.inputRulerSelector.nodeTypes = ["vtkMRMLAnnotationRulerNode", "vtkMRMLMarkupsLineNode"]
     self.inputRulerSelector.selectNodeUponCreation = True
     self.inputRulerSelector.addEnabled = False
     self.inputRulerSelector.removeEnabled = False
@@ -227,27 +227,40 @@ class LineProfileLogic(ScriptedLoadableModuleLogic):
     return newArray
 
   def updateOutputTable(self, inputVolume, inputRuler, outputTable, lineResolution):
-    import math
-
-    rulerStartPoint_Ruler = [0,0,0]
-    rulerEndPoint_Ruler = [0,0,0]
-    inputRuler.GetPosition1(rulerStartPoint_Ruler)
-    inputRuler.GetPosition2(rulerEndPoint_Ruler)
-    rulerStartPoint_Ruler1 = [rulerStartPoint_Ruler[0], rulerStartPoint_Ruler[1], rulerStartPoint_Ruler[2], 1.0]
-    rulerEndPoint_Ruler1 = [rulerEndPoint_Ruler[0], rulerEndPoint_Ruler[1], rulerEndPoint_Ruler[2], 1.0]
-
-    rulerToRAS = vtk.vtkMatrix4x4()
-    rulerTransformNode = inputRuler.GetParentTransformNode()
-    if rulerTransformNode:
-      if rulerTransformNode.IsTransformToWorldLinear():
-        rulerToRAS.DeepCopy(rulerTransformNode.GetMatrixTransformToParent())
-      else:
-        logging.warning("Cannot handle non-linear transforms - ignoring transform of the input ruler")
+    import math  
 
     rulerStartPoint_RAS1 = [0,0,0,1]
     rulerEndPoint_RAS1 = [0,0,0,1]
-    rulerToRAS.MultiplyPoint(rulerStartPoint_Ruler1,rulerStartPoint_RAS1)
-    rulerToRAS.MultiplyPoint(rulerEndPoint_Ruler1,rulerEndPoint_RAS1)
+
+    if inputRuler.IsA('vtkMRMLAnnotationRulerNode'):
+      rulerStartPoint_RAS1 = [0,0,0,1]
+      rulerEndPoint_RAS1 = [0,0,0,1]
+      rulerStartPoint_Ruler = [0,0,0]
+      rulerEndPoint_Ruler = [0,0,0]
+      inputRuler.GetPosition1(rulerStartPoint_Ruler)
+      inputRuler.GetPosition2(rulerEndPoint_Ruler)
+      rulerStartPoint_Ruler1 = [rulerStartPoint_Ruler[0], rulerStartPoint_Ruler[1], rulerStartPoint_Ruler[2], 1.0]
+      rulerEndPoint_Ruler1 = [rulerEndPoint_Ruler[0], rulerEndPoint_Ruler[1], rulerEndPoint_Ruler[2], 1.0]
+
+      rulerToRAS = vtk.vtkMatrix4x4()
+      rulerTransformNode = inputRuler.GetParentTransformNode()
+      if rulerTransformNode:
+        if rulerTransformNode.IsTransformToWorldLinear():
+          rulerToRAS.DeepCopy(rulerTransformNode.GetMatrixTransformToParent())
+        else:
+          logging.warning("Cannot handle non-linear transforms - ignoring transform of the input ruler")
+
+      
+      rulerToRAS.MultiplyPoint(rulerStartPoint_Ruler1,rulerStartPoint_RAS1)
+      rulerToRAS.MultiplyPoint(rulerEndPoint_Ruler1,rulerEndPoint_RAS1)
+
+    if inputRuler.IsA('vtkMRMLMarkupsLineNode'):
+      rulerStartPoint_world = [0,0,0]
+      rulerEndPoint_world = [0,0,0]
+      inputRuler.GetNthControlPointPositionWorld(0, rulerStartPoint_world)
+      inputRuler.GetNthControlPointPositionWorld(1, rulerEndPoint_world)
+      rulerStartPoint_RAS1 = [rulerStartPoint_world[0], rulerStartPoint_world[1], rulerStartPoint_world[2], 1]
+      rulerEndPoint_RAS1 = [rulerEndPoint_world[0], rulerEndPoint_world[1], rulerEndPoint_world[2], 1]
 
     rulerLengthMm=math.sqrt(vtk.vtkMath.Distance2BetweenPoints(rulerStartPoint_RAS1[0:3],rulerEndPoint_RAS1[0:3]))
 
